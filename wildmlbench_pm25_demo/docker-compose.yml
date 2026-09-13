@@ -1,0 +1,17 @@
+services:
+  aide:
+    build:
+      context: ./docker
+    image: wildmlbench-pm25-aide:0.2.2
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY before launching AIDE}
+    volumes:
+      - ./aide_task:/workspace:ro
+      - ./runs/compose:/output
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    cpus: 4
+    mem_limit: 8g

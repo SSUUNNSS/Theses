@@ -1,0 +1,13 @@
+.venv/
+*.env
+.env
+__pycache__/
+*.pyc
+data/raw/*.csv
+data/raw/*.part
+data/processed/*.csv
+runs/*
+!runs/.gitkeep
+aide_env/
+aide_results/
+docker/*.log
