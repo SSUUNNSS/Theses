@@ -45,7 +45,14 @@ Dates are day-first; timestamps retain Queensland local time (AEST, UTC+10).
 
 ## Quick Start
 
-From the repository root:
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/SSUUNNSS/Theses.git
+cd Theses/wildmlbench_pm25_demo
+```
+
+Create a virtual environment:
 
 ```bash
 python -m venv .venv
@@ -169,6 +176,8 @@ MLE-STAR, and other MLE agents, and adding automatic validity checks.
 
 ## AIDE Agent Evaluation
 
+The AIDE integration and evaluation harness are implemented, but no full AIDE
+run has been executed yet because an OpenAI API key has not been configured.
 This repository includes a small AIDE evaluation harness. AIDE receives only
 the following files in a separate read-only mount: `train.csv`,
 `test_features.csv`, and `TASK.md`. The hidden `test_labels.csv`,
@@ -205,14 +214,18 @@ The script prepares the allowlisted workspace, builds the image, runs AIDE,
 validates the resulting prediction file, and evaluates it on the host. If the
 key is missing, it exits before starting any paid call. Results are written to
 `runs/<run_id>/`, including logs, metadata, predictions, and `evaluation.json`.
-The equivalent container-only command is:
+For the lower-level Docker Compose path, first generate the isolated agent
+workspace:
 
-```powershell
+```bash
+python scripts/prepare_aide_workspace.py
 docker compose build aide
 docker compose run --rm aide
 ```
 
-The container uses a Docker-isolated AIDE agent workspace with host-side
+The generated `aide_task/` workspace is created at runtime, contains only
+`train.csv`, `test_features.csv`, and `TASK.md`, and is intentionally ignored by
+Git. The container uses a Docker-isolated AIDE agent workspace with host-side
 hidden-label evaluation: the agent mount is read-only, test labels remain on the
 host, final RMSE evaluation runs on the host, Linux capabilities are dropped,
 and `no-new-privileges` is enabled. Network access is still needed for the LLM
