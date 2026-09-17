@@ -10,6 +10,9 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
   exit 2
 fi
 
+AIDE_STEPS="${AIDE_STEPS:-3}"
+export AIDE_STEPS
+
 python - <<'PY'
 from pathlib import Path
 
@@ -45,8 +48,19 @@ finally:
 PY
 
 python - <<'PY'
+import os
 import sys
 from aide.run import run
+
+steps = os.environ.get('AIDE_STEPS', '3')
+if steps is None or not str(steps).strip():
+    steps = '3'
+try:
+    value = int(str(steps).strip())
+except ValueError as exc:
+    raise SystemExit(f'Invalid AIDE_STEPS value: {steps!r}') from exc
+if value <= 0:
+    raise SystemExit(f'Invalid AIDE_STEPS value: {steps!r}; expected a positive integer')
 
 sys.argv = [
     'aide',
@@ -55,7 +69,7 @@ sys.argv = [
     'log_dir=/output/logs',
     'workspace_dir=/output/workspaces',
     'exp_name=pm25-v1',
-    'agent.steps=3',
+    f'agent.steps={value}',
     'agent.search.num_drafts=1',
     'agent.k_fold_validation=1',
     'agent.code.model=o4-mini',

@@ -11,3 +11,4 @@ runs/*
 aide_env/
 aide_results/
 docker/*.log
+aide_task/

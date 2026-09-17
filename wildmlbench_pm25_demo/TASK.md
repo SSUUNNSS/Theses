@@ -44,10 +44,14 @@ The benchmark uses root mean squared error (RMSE). Lower is better.
 
 ## What this benchmark tests
 
-This task evaluates raw-data processing, timestamp handling, wide-to-long
-restructuring, missing-value handling, temporal feature engineering, leakage
-awareness, reproducible ML pipeline construction, and prediction/evaluation
-discipline.
+For the MLE agent, this task evaluates missing-value handling, temporal
+validation strategy, leakage awareness, reproducible ML pipeline construction,
+model selection, prediction generation, and submission discipline.
+
+The benchmark construction pipeline itself additionally covers raw-data
+validation, timestamp parsing, wide-to-long restructuring, temporal feature
+engineering, chronological splitting, and hidden-label preparation.
+
 ## Forecast and access protocol
 
 Each row is a forecast at time `t`, using observations available through `t`

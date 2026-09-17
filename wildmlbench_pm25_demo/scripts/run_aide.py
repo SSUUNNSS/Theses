@@ -27,6 +27,8 @@ def main() -> int:
     parser.add_argument('--steps', type=int, default=3)
     parser.add_argument('--run-id')
     args = parser.parse_args()
+    if args.steps <= 0:
+        parser.error('--steps must be a positive integer')
     root = Path(__file__).resolve().parents[1]
     workspace = root / 'aide_task'
     runs = root / 'runs'
@@ -66,7 +68,8 @@ def main() -> int:
     container = run_command([
         'docker', 'run', '--rm', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
         '--pids-limit', '256', '--cpus', '4', '--memory', '8g',
-        '--env', 'OPENAI_API_KEY', '--mount', f'type=bind,source={workspace},target=/workspace,readonly',
+        '--env', 'OPENAI_API_KEY', '--env', f'AIDE_STEPS={args.steps}',
+        '--mount', f'type=bind,source={workspace},target=/workspace,readonly',
         '--mount', f'type=bind,source={run_dir},target=/output', image,
     ], capture_output=True)
     (run_dir / 'aide_stdout.log').write_text(container.stdout or '', encoding='utf-8')

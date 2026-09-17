@@ -1,0 +1,30 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r wildmlbench_pm25_demo/requirements.txt
+
+      - name: Compile Python sources
+        run: |
+          python -m compileall -q wildmlbench_pm25_demo/src wildmlbench_pm25_demo/tests
+
+      - name: Run unit tests
+        run: |
+          python -m unittest discover -s wildmlbench_pm25_demo/tests -v

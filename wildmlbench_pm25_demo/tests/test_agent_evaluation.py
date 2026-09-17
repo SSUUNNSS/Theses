@@ -47,6 +47,14 @@ class AgentEvaluationTests(unittest.TestCase):
         self.assertNotIn('wildmlbench_pm25_demo:/', compose)
         self.assertIn("allowed = {'train.csv', 'test_features.csv', 'TASK.md'}", dockerfile)
 
+    def test_aide_steps_are_configurable_for_runtime(self):
+        run_script = (Path(__file__).resolve().parents[1] / 'scripts' / 'run_aide.py').read_text()
+        entrypoint = (Path(__file__).resolve().parents[1] / 'docker' / 'entrypoint.sh').read_text()
+        self.assertIn('AIDE_STEPS', run_script)
+        self.assertIn('agent_steps', run_script)
+        self.assertIn('AIDE_STEPS="${AIDE_STEPS:-3}"', entrypoint)
+        self.assertIn("'--env', f'AIDE_STEPS={args.steps}'", run_script)
+
 
 if __name__ == '__main__':
     unittest.main()

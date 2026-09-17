@@ -148,7 +148,7 @@ duplicates, missing IDs, nonnumeric values, and infinities.
 Potential V2 extensions include combining PM2.5 with weather data, adding
 station metadata, creating true multi-source data integration, held-out
 station evaluation, missing-data robustness tests, distribution-shift tests,
-fairness or subgroup analyses where conceptually appropriate, evaluating AIDE, 
+fairness or subgroup analyses where conceptually appropriate, evaluating AIDE,
 MLE-STAR, and other MLE agents, and adding automatic validity checks.
 
 ## AIDE Agent Evaluation
@@ -158,7 +158,9 @@ the following files in a separate read-only mount: `train.csv`,
 `test_features.csv`, and `TASK.md`. The hidden `test_labels.csv`,
 `src/baseline.py`, `src/evaluate.py`, README, tests, and raw data remain on the
 host and are never mounted into the container. The host performs the final
-`row_id`-aligned RMSE evaluation after the container exits.
+`row_id`-aligned RMSE evaluation after the container exits. The generated
+`aide_task/` workspace is produced at runtime by `scripts/prepare_aide_workspace.py`
+and is not a committed project asset.
 
 ```text
 train.csv + test_features.csv + TASK.md
@@ -173,9 +175,10 @@ train.csv + test_features.csv + TASK.md
 ```
 
 The Docker image uses the inspected `aideml==0.2.2` package and its minimal
-runtime dependencies. The first run is limited to three search steps. AIDE
-needs an OpenAI key for the configured `o4-mini` coding and `gpt-4.1-mini`
-feedback models; provide it at runtime only:
+runtime dependencies. The default run uses three search steps, and the CLI
+`--steps` value is passed through to the container so the actual AIDE config
+matches the recorded metadata. AIDE needs an OpenAI key for the configured
+`o4-mini` coding and `gpt-4.1-mini` feedback models; provide it at runtime only:
 
 ```powershell
 $env:OPENAI_API_KEY = '...'
@@ -193,15 +196,18 @@ docker compose build aide
 docker compose run --rm aide
 ```
 
-The container needs network access for the LLM API, so this prototype isolates
-the filesystem and drops Linux capabilities but does not claim network-level
-agent isolation. The entrypoint rejects symlinks and any workspace contents
-outside the three-file allowlist. Normal tests mock no LLM call and run with:
+The container uses a Docker-isolated AIDE agent workspace with host-side
+hidden-label evaluation: the agent mount is read-only, test labels remain on the
+host, final RMSE evaluation runs on the host, Linux capabilities are dropped,
+and `no-new-privileges` is enabled. Network access is still needed for the LLM
+API, so this prototype does not claim network isolation. The entrypoint rejects
+symlinks and any workspace contents outside the three-file allowlist. Normal
+tests mock no LLM call and run with:
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
-MLE-STAR, and other MLE agents, and adding automatic validity checks.
+
 ## Validation
 
 Run the focused regression checks with:
