@@ -82,14 +82,29 @@ automatic downloading fails.
 ```text
 wildmlbench_pm25_demo/
 ├── data/
-│   ├── raw/README.md
-│   └── processed/README.md
+│   ├── raw/
+│   │   └── README.md
+│   └── processed/
+│       └── README.md
 ├── src/
 │   ├── fetch_data.py
 │   ├── prepare_data.py
 │   ├── baseline.py
 │   └── evaluate.py
-├── tests/test_benchmark.py
+├── scripts/
+│   ├── prepare_aide_workspace.py
+│   ├── run_aide.py
+│   └── evaluate_agent_output.py
+├── tests/
+│   ├── test_benchmark.py
+│   └── test_agent_evaluation.py
+├── docker/
+│   ├── Dockerfile
+│   ├── entrypoint.sh
+│   └── requirements-core.txt
+├── runs/
+│   └── .gitkeep
+├── docker-compose.yml
 ├── TASK.md
 ├── README.md
 ├── requirements.txt
@@ -107,10 +122,11 @@ Downloaded raw CSVs and generated processed CSVs are ignored by Git.
   observations. Missing hours are inserted before shifts so lags represent
   elapsed hours. Duplicate station/timestamp pairs are rejected. The current and future target are never included in the roll.
 - **Missing values:** invalid measurements become missing values and remain in
-  the prepared data. The baseline imputes numeric medians and categorical
-  a constant categorical placeholder inside a scikit-learn pipeline.
-  Imputation and encoding are fitted on training data only; rows without targets
-  are removed. Non-finite measurements become missing values.
+  the prepared data. The baseline imputes numeric features with training-set
+  medians and categorical features with a constant placeholder inside a
+  scikit-learn pipeline. Imputation and encoding are fitted on training data
+  only; rows without targets are removed. Non-finite measurements become
+  missing values.
 - **Separate evaluation:** predictions and labels are joined by `row_id` in a
   separate script with alignment and validity checks.
 - **Reproducibility:** paths are repository-relative, the baseline uses
@@ -201,8 +217,8 @@ hidden-label evaluation: the agent mount is read-only, test labels remain on the
 host, final RMSE evaluation runs on the host, Linux capabilities are dropped,
 and `no-new-privileges` is enabled. Network access is still needed for the LLM
 API, so this prototype does not claim network isolation. The entrypoint rejects
-symlinks and any workspace contents outside the three-file allowlist. Normal
-tests mock no LLM call and run with:
+symlinks and any workspace contents outside the three-file allowlist. Unit tests
+do not make LLM API calls and can be run with:
 
 ```powershell
 python -m unittest discover -s tests -v

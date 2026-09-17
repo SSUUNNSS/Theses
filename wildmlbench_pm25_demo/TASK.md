@@ -12,10 +12,10 @@ observations to construct features for an earlier timestamp.
 
 ## Input
 
-An agent may use `data/processed/train.csv` for training and
-`data/processed/test_features.csv` for prediction. The training file contains
-the feature columns and `target_pm25_next_hour`; the test feature file contains
-the same predictor columns without the target.
+The agent receives `train.csv` for training and validation and
+`test_features.csv` for prediction. The training file contains the feature
+columns and `target_pm25_next_hour`; the test feature file contains the same
+predictor columns without the target.
 
 ## Output
 
